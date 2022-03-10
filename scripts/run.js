@@ -1,4 +1,5 @@
 const main = async () => {
+  /*
   const [owner, randomPerson] = await hre.ethers.getSigners();
 
   const waveContractFactory = await hre.ethers.getContractFactory('WavePortal'); // NOTE: WavePortal.sol のコンパイルを実行する
@@ -20,6 +21,28 @@ const main = async () => {
   await waveTxn.wait();
 
   waveCount = await waveContract.getTotalWaves();
+  */
+
+  const waveContractFactory = await hre.ethers.getContractFactory('WavePortal');
+  const waveContract = await waveContractFactory.deploy();
+
+  console.log('Contract added to:', waveContract.address);
+
+  let waveCount;
+  waveCount = await waveContract.getTotalWaves();
+
+  console.log(waveCount.toNumber());
+
+  // wave を送る
+  let waveTxn = await waveContract.wave('A message!');
+  await waveTxn.wait();
+
+  const [_, randomPerson] = await hre.ethers.getSigners();
+  waveTxn = await waveContract.connect(randomPerson).wave('Another message!');
+  await waveTxn.wait();
+
+  let allWaves = await waveContract.getAllWaves();
+  console.log(allWaves);
 };
 
 const runMain = async () => {
